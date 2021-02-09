@@ -15,32 +15,42 @@ import re
 
 ### automate the google search 
 ### in separate file to keep testing separate
-import googlesearcher.py
+from googlesearcher import Grants
 
+grants_list = Grants().get_search_results()
+print(grants_list)
 
-### this code works!
-url = "https://www.tmcfinancing.com/covid-19-grants/"
-r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+def scrape_url(url):
+    r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'})
+    print(r.status_code)
+    soup = BeautifulSoup(r.text, "html.parser")
 
-print(r.status_code)
+    ### extract links from website into data structure
+    ### maybe store in dictionary not array?
+    links = {}
 
-soup = BeautifulSoup(r.text, "html.parser")
+    ### using get_text() method
+    ### href = True instead of using attrs - not sure why this works instead?
+    ### does not contain logic to weed out anything that links to the same tmc website
 
-### extract links from website into data structure
-### maybe store in dictionary not array?
-links = {}
-
-### using get_text() method
-### href = True instead of using attrs - not sure why this works instead?
-### does not contain logic to weed out anything that links to the same tmc website
-
-for link in soup.find_all('a', href=True):  
-    if 'tmcfinancing' not in tag.attrs['href']:
+    ### grab visible webpage text not svg / imgs
+        ### Scalable Vector Graphics (SVG) are an XML-based markup language for describing two-dimensional based vector graphics
+        ### in window._wpemojiSettings dictionary try: no 'svgUrl'
+        ### path tag/attribute - almost always svg (there's also an svg tag)
+        ### extract to remove unwanted tags before you get text
+    for link in soup.find_all('a', href=True):  
+        # if 'tmcfinancing' not in tag.attrs['href']:
+        
         print(link)
         links[link.get_text()] = link
+    
+    print(links)
 
+for grant in grants_list:
+    url = grant
+    scrape_url(url)
 
-
+### note: filter out any non-bay area
 
 ### get info from each of those links (goal is pulling all info about grants)
 # for key in links:
